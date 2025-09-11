@@ -19,7 +19,7 @@ const port = process.env.PORT || 8000;
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: ['http://localhost:5173', 'https://thunderous-pegasus-9a97ba.netlify.app', 'https://s-mart-backend.onrender.com'],
   credentials: true
 }));
 app.use('/images', express.static('uploads/images'));

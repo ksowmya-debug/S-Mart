@@ -39,7 +39,7 @@ const Product = () => {
     <div className="container mx-auto mt-10 p-4">
       <div className="flex flex-col md:flex-row gap-8">
         <div className="md:w-1/2">
-          <img src={`http://localhost:8000/images/${product.image[0]}`} alt={product.name} className="w-full h-auto rounded-lg shadow-lg" />
+          <img src={`https://s-mart-backend.onrender.com/images/${product.image[0]}`} alt={product.name} className="w-full h-auto rounded-lg shadow-lg" />
         </div>
         <div className="md:w-1/2">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">{product.name}</h1>

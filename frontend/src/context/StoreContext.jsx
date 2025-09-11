@@ -14,7 +14,7 @@ const StoreContextProvider = (props) => {
     useEffect(() => {
         async function fetchProducts() {
             try {
-                const response = await axios.get('http://localhost:8000/api/products');
+                const response = await axios.get('https://s-mart-backend.onrender.com/api/products');
                 setProducts(response.data);
             } catch (error) {
                 console.error('Error fetching products:', error);
@@ -81,7 +81,7 @@ const StoreContextProvider = (props) => {
                 setToken(localStorage.getItem("token"));
                 // Fetch user data if token exists
                 try {
-                    const { data } = await axios.get('http://localhost:8000/api/users/profile', {
+                    const { data } = await axios.get('https://s-mart-backend.onrender.com/api/users/profile', {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem("token")}`,
                         },

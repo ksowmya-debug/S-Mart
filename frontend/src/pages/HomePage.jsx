@@ -54,7 +54,7 @@ const HomePage = () => {
               <div key={product._id} className="group relative">
                 <div className="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
                   <img
-                    src={`http://localhost:8000/images/${product.image[0]}`}
+                    src={`https://s-mart-backend.onrender.com/images/${product.image[0]}`}
                     alt={product.name}
                     className="w-full h-full object-center object-cover lg:w-full lg:h-full"
                   />
@@ -96,7 +96,7 @@ const HomePage = () => {
             <div className="mt-10 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-2 xl:gap-x-8">
                 <div className="group relative">
                     <div className="w-full h-80 rounded-lg overflow-hidden group-hover:opacity-75 sm:h-96">
-                        <img src={`http://localhost:8000/images/${products.find(p=>p.category==='Men')?.image[0]}`} alt="Men's Collection" className="w-full h-full object-center object-cover" />
+                        <img src={`https://s-mart-backend.onrender.com/images/${products.find(p=>p.category==='Men')?.image[0]}`} alt="Men's Collection" className="w-full h-full object-center object-cover" />
                     </div>
                     <h3 className="mt-4 text-base font-semibold text-gray-900">
                         <Link to="/Collections">
@@ -109,7 +109,7 @@ const HomePage = () => {
 
                 <div className="group relative">
                     <div className="w-full h-80 rounded-lg overflow-hidden group-hover:opacity-75 sm:h-96">
-                        <img src={`http://localhost:8000/images/${products.find(p=>p.category==='Women')?.image[0]}`} alt="Women's Collection" className="w-full h-full object-center object-cover" />
+                        <img src={`https://s-mart-backend.onrender.com/images/${products.find(p=>p.category==='Women')?.image[0]}`} alt="Women's Collection" className="w-full h-full object-center object-cover" />
                     </div>
                     <h3 className="mt-4 text-base font-semibold text-gray-900">
                         <Link to="/Collections">
