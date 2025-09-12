@@ -1,28 +1,45 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import { StoreContext } from '../context/StoreContext';
 
 
 const Product = () => {
   const { productId } = useParams();
-  const { products, addToCart, cartItems } = useContext(StoreContext);
+  const { addToCart, cartItems } = useContext(StoreContext);
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState("1");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log("Product ID from URL:", productId);
-    const foundProduct = products.find(p => p._id === productId);
-    console.log("Found Product:", foundProduct);
-    if (foundProduct) {
-      setProduct(foundProduct);
-    } else {
-      // Handle product not found, e.g., redirect to 404 or home
-      console.log("Product not found");
-    }
-  }, [productId, products]);
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`https://s-mart-backend.onrender.com/api/products/${productId}`);
+        setProduct(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError(err);
+        setLoading(false);
+        console.error("Error fetching product:", err);
+        // Optionally, redirect to a 404 page or display an error message
+      }
+    };
 
-  if (!product) {
+    fetchProduct();
+  }, [productId]);
+
+  if (loading) {
     return <div className="text-center mt-10">Loading product...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center mt-10 text-red-500">Error: {error.message || "Product not found."}</div>;
+  }
+
+  if (!product) { // Fallback if product is null after loading/error
+    return <div className="text-center mt-10">Product not found.</div>;
   }
 
   const handleAddToCart = () => {

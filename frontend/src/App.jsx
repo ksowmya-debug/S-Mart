@@ -16,7 +16,12 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 import DummyUpiCheckout from './pages/DummyUpiCheckout';
 import Register from './pages/Register';
+import AdminLayout from './pages/Admin/AdminLayout';
+import AdminDashboard from './pages/Admin/AdminDashboard';
 
+
+
+import Dashboard from './pages/Admin/Dashboard'; // Import the Dashboard component
 
 const App = () => {
   const location = useLocation();
@@ -42,7 +47,14 @@ const App = () => {
         <Route path='/dummy-upi-checkout' element={<DummyUpiCheckout />} />
         <Route path='/register' element={<Register />} />
 
-        
+        {/* Admin Routes */}
+        <Route path='/admin' element={<ProtectedRoute adminOnly><AdminLayout /></ProtectedRoute>}>
+          <Route index element={<AdminDashboard />} />
+          <Route path='dashboard' element={<Dashboard />} /> {/* Render Dashboard component here */}
+          
+          
+          {/* Add other admin routes here if needed, e.g., for UserList */}
+        </Route>
       </Routes>
     </div>
   );
