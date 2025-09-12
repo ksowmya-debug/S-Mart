@@ -1,6 +1,5 @@
 import express from 'express';
 const router = express.Router();
-import { protect, admin } from '../middleware/authMiddleware.js';
 import {
     getUsers,
     deleteUser,
@@ -13,16 +12,16 @@ import {
     getSummary
 } from '../controllers/adminController.js';
 
-router.route('/users').get(protect, admin, getUsers);
+router.route('/users').get(getUsers);
 router.route('/users/:id')
-    .delete(protect, admin, deleteUser)
-    .put(protect, admin, updateUser);
-router.route('/products').get(protect, admin, getProducts);
+    .delete(deleteUser)
+    .put(updateUser);
+router.route('/products').get(getProducts);
 router.route('/products/:id')
-    .delete(protect, admin, deleteProduct)
-    .put(protect, admin, updateProduct);
-router.route('/products').post(protect, admin, createProduct);
-router.route('/orders').get(protect, admin, getOrders);
-router.route('/summary').get(protect, admin, getSummary);
+    .delete(deleteProduct)
+    .put(updateProduct);
+router.route('/products').post(createProduct);
+router.route('/orders').get(getOrders);
+router.route('/summary').get(getSummary);
 
 export default router;
