@@ -41,6 +41,6 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Listener
-app.listen(port, () => {
-    console.log(`Server started on http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Server started on port ${port}`);
 });
