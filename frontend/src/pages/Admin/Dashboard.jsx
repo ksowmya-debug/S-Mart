@@ -26,7 +26,7 @@ const Dashboard = () => {
 
     const fetchDashboardData = async () => {
         try {
-            const { data } = await axios.get('https://s-mart-backend.onrender.com/api/admin/summary', {
+            const { data } = await axios.get('http://localhost:8000/api/admin/summary', {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },

@@ -8,7 +8,7 @@ const DummyUpiCheckout = () => {
   useEffect(() => {
     const fetchUpiDetails = async () => {
       try {
-        const response = await axios.get('https://s-mart-backend.onrender.com/api/dummy-upi/generate-upi-qr');
+        const response = await axios.get('http://localhost:8000/api/dummy-upi/generate-upi-qr');
         setUpiDetails(response.data);
       } catch (error) {
         console.error('Error fetching UPI details:', error);
@@ -20,7 +20,7 @@ const DummyUpiCheckout = () => {
 
   const simulatePayment = async (status) => {
     try {
-      const response = await axios.post('https://s-mart-backend.onrender.com/api/dummy-upi/simulate-payment', { status });
+      const response = await axios.post('http://localhost:8000/api/dummy-upi/simulate-payment', { status });
       setPaymentStatus(response.data.message);
     } catch (error) {
       console.error('Error simulating payment:', error);

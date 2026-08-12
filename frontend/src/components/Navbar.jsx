@@ -61,7 +61,7 @@ const Navbar = () => {
           <div className='group relative'>
             <img src={assets.profile_icon} className='w-5 cursor-pointer' alt="" />
             <ul className='absolute z-10 hidden group-hover:block bg-white shadow-md rounded-md mt-1 w-40'>
-              <li className='p-2 hover:bg-gray-100 cursor-pointer'>My profile</li>
+              <Link to="/profile"><li className='p-2 hover:bg-gray-100 cursor-pointer'>My profile</li></Link>
               <Link to="/orders"><li className='p-2 hover:bg-gray-100 cursor-pointer'>Order</li></Link>
               <li onClick={handleLogout} className='p-2 hover:bg-gray-100 cursor-pointer'>
                 Logout

@@ -14,7 +14,7 @@ const StoreContextProvider = (props) => {
     useEffect(() => {
         async function fetchProducts() {
             try {
-                const response = await axios.get('https://s-mart-backend.onrender.com/api/products');
+                const response = await axios.get('http://localhost:8000/api/products');
                 setProducts(response.data);
             } catch (error) {
                 console.error('Error fetching products:', error);
@@ -59,7 +59,9 @@ const StoreContextProvider = (props) => {
         for (const item in cartItems) {
             if (cartItems[item] > 0) {
                 let itemInfo = products.find((product) => product._id === item);
-                totalAmount += itemInfo.price * cartItems[item];
+                if (itemInfo) {
+                    totalAmount += itemInfo.price * cartItems[item];
+                }
             }
         }
         return totalAmount;
@@ -81,7 +83,7 @@ const StoreContextProvider = (props) => {
                 setToken(localStorage.getItem("token"));
                 // Fetch user data if token exists
                 try {
-                    const { data } = await axios.get('https://s-mart-backend.onrender.com/api/users/profile', {
+                    const { data } = await axios.get('http://localhost:8000/api/users/profile', {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem("token")}`,
                         },

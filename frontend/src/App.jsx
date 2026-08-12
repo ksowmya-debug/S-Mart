@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import PlaceOrder from './pages/PlaceOrder';
 import Orders from './pages/Orders';
 import Navbar from './components/Navbar';
+import Profile from './pages/Profile';
 import { ToastContainer, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -43,6 +44,7 @@ const App = () => {
         <Route path='/login' element={<Login />} />
         <Route path='/order' element={<ProtectedRoute><PlaceOrder /></ProtectedRoute>} />
         <Route path='/orders' element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+        <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         
         <Route path='/dummy-upi-checkout' element={<DummyUpiCheckout />} />
         <Route path='/register' element={<Register />} />
