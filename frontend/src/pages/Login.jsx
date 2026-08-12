@@ -13,7 +13,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8000/api/users/login', { email, password });
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/users/login`, { email, password });
       const { token } = response.data;
       setToken(token);
       localStorage.setItem('token', token);

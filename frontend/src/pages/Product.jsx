@@ -16,7 +16,7 @@ const Product = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:8000/api/products/${productId}`);
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}`);
         setProduct(response.data);
         setLoading(false);
       } catch (err) {
@@ -56,7 +56,7 @@ const Product = () => {
     <div className="container mx-auto mt-10 p-4">
       <div className="flex flex-col md:flex-row gap-8">
         <div className="md:w-1/2">
-          <img src={`http://localhost:8000/images/${product.image[0]}`} alt={product.name} className="w-full h-auto rounded-lg shadow-lg" />
+          <img src={`${import.meta.env.VITE_BACKEND_URL}/images/${product.image[0]}`} alt={product.name} className="w-full h-auto rounded-lg shadow-lg" />
         </div>
         <div className="md:w-1/2">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">{product.name}</h1>
