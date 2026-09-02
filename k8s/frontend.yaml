@@ -20,8 +20,8 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: frontend
-          image: smart-frontend:latest
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/ksowmya-debug/smart-frontend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
           resources:

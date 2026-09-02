@@ -6,9 +6,13 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-test:
-    name: Build & Test
+    name: Build, Test & Push to GHCR
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -34,6 +38,31 @@ jobs:
           npm ci
           npm run build
 
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push Backend Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/ksowmya-debug/smart-backend:latest
+            ghcr.io/ksowmya-debug/smart-backend:${{ github.sha }}
+
+      - name: Build & Push Frontend Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ghcr.io/ksowmya-debug/smart-frontend:latest
+            ghcr.io/ksowmya-debug/smart-frontend:${{ github.sha }}
+
   deploy:
     name: Deploy to AWS EC2 (K3s Kubernetes)
     needs: build-and-test
@@ -54,20 +83,16 @@ jobs:
             cd ~/S-Mart
             git pull origin main
 
-            echo "==== 2. Building Docker Images ===="
-            docker build -t smart-backend:latest ./backend
-            docker build -t smart-frontend:latest ./frontend
+            echo "==== 2. Applying Kubernetes Manifests ===="
+            kubectl apply --validate=false -f k8s/backend.yaml
+            kubectl apply --validate=false -f k8s/frontend.yaml
+            kubectl apply --validate=false -f k8s/ingress.yaml
 
-            echo "==== 3. Importing Images to K3s containerd ===="
-            docker save smart-backend:latest | sudo k3s ctr images import -
-            docker save smart-frontend:latest | sudo k3s ctr images import -
+            echo "==== 3. Updating Deployment Images to Commit SHA ===="
+            kubectl set image deployment/smart-backend backend=ghcr.io/ksowmya-debug/smart-backend:${{ github.sha }} -n smart
+            kubectl set image deployment/smart-frontend frontend=ghcr.io/ksowmya-debug/smart-frontend:${{ github.sha }} -n smart
 
-            echo "==== 4. Applying Kubernetes Manifests ===="
-            kubectl apply -f k8s/backend.yaml
-            kubectl apply -f k8s/frontend.yaml
-            kubectl apply -f k8s/ingress.yaml
-
-            echo "==== 5. Verifying Deployment Rollout ===="
+            echo "==== 4. Verifying Deployment Rollout ===="
             kubectl rollout status deployment/smart-backend -n smart --timeout=120s
             kubectl rollout status deployment/smart-frontend -n smart --timeout=120s
 
