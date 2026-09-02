@@ -22,6 +22,8 @@ metadata:
     app: grafana
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: grafana
@@ -30,6 +32,7 @@ spec:
       labels:
         app: grafana
     spec:
+      terminationGracePeriodSeconds: 5
       containers:
         - name: grafana
           image: grafana/grafana:11.2.0
@@ -47,15 +50,19 @@ spec:
               cpu: "30m"
               memory: "64Mi"
             limits:
-              cpu: "150m"
-              memory: "150Mi"
+              cpu: "250m"
+              memory: "256Mi"
           volumeMounts:
             - name: grafana-datasources-volume
               mountPath: /etc/grafana/provisioning/datasources/
+            - name: grafana-storage
+              mountPath: /var/lib/grafana
       volumes:
         - name: grafana-datasources-volume
           configMap:
             name: grafana-datasources
+        - name: grafana-storage
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
