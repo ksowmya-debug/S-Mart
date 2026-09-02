@@ -1,0 +1,8 @@
+# Root .gitignore for S-Mart
+.env
+.env*.local
+.env.production
+node_modules
+dist
+*.log
+.DS_Store
