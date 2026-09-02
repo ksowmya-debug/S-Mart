@@ -2,6 +2,7 @@
 .env
 .env*.local
 .env.production
+k8s/backend-secret.yaml
 node_modules
 dist
 *.log

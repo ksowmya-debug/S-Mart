@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smart-backend
+  namespace: smart
+  labels:
+    app: smart-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smart-backend
+  template:
+    metadata:
+      labels:
+        app: smart-backend
+    spec:
+      containers:
+        - name: backend
+          image: smart-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: PORT
+              value: "8000"
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: smart-backend-secret
+                  key: MONGO_URI
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: smart-backend-secret
+                  key: JWT_SECRET
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smart-backend-service
+  namespace: smart
+  labels:
+    app: smart-backend
+spec:
+  type: ClusterIP
+  selector:
+    app: smart-backend
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
