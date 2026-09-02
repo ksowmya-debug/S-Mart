@@ -7,6 +7,11 @@ metadata:
     app: smart-backend
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: smart-backend
@@ -15,6 +20,7 @@ spec:
       labels:
         app: smart-backend
     spec:
+      terminationGracePeriodSeconds: 5
       containers:
         - name: backend
           image: smart-backend:latest
