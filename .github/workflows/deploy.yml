@@ -67,13 +67,9 @@ jobs:
             kubectl apply -f k8s/frontend.yaml
             kubectl apply -f k8s/ingress.yaml
 
-            echo "==== 5. Triggering Rolling Update ===="
-            kubectl rollout restart deployment/smart-backend -n smart
-            kubectl rollout restart deployment/smart-frontend -n smart
-
-            echo "==== 6. Verifying Pod Rollout Status ===="
-            kubectl rollout status deployment/smart-backend -n smart --timeout=180s
-            kubectl rollout status deployment/smart-frontend -n smart --timeout=180s
+            echo "==== 5. Verifying Deployment Rollout ===="
+            kubectl rollout status deployment/smart-backend -n smart --timeout=120s
+            kubectl rollout status deployment/smart-frontend -n smart --timeout=120s
 
             echo "==== Deployment Successfully Verified! ===="
             kubectl get pods,svc,ingress -n smart
