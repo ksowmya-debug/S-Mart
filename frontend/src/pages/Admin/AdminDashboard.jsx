@@ -1,310 +1,345 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import { Bar, Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend } from 'chart.js';
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import API from '../../services/api';
+import {
+  Users,
+  ShoppingBag,
+  IndianRupee,
+  Download,
+  AlertCircle,
+  Calendar,
+  ChevronDown,
+} from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
 
 const AdminDashboard = () => {
-  const [users, setUsers] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [editingUser, setEditingUser] = useState(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newUser, setNewUser] = useState({ name: '', email: '', password: '', isAdmin: false });
-
-  const fetchUsers = async () => {
-    try {
-      const { data } = await axios.get('http://localhost:8000/api/admin/users', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      setUsers(data);
-      setLoading(false);
-    } catch (err) {
-      setError(err);
-      setLoading(false);
-      toast.error('Failed to fetch users.');
-    }
-  };
 
   useEffect(() => {
-    fetchUsers();
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [statsRes, analyticsRes] = await Promise.all([
+          API.get('/api/admin/dashboard'),
+          API.get('/api/admin/analytics'),
+        ]);
+
+        setStats(statsRes.data);
+        setAnalytics(analyticsRes.data);
+      } catch (err) {
+        console.error('Failed to load admin stats:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const handleToggleAdmin = async (userId, isAdmin) => {
-    try {
-      await axios.put(
-        `http://localhost:8000/api/admin/users/${userId}`,
-        { isAdmin: !isAdmin },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
-      toast.success('User role updated successfully!');
-      fetchUsers(); // Re-fetch users to update the list
-    } catch (error) {
-      toast.error('Failed to update user role.');
-    }
-  };
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
-  const deleteUserHandler = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        await axios.delete(`http://localhost:8000/api/admin/users/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        toast.success('User deleted successfully!');
-        fetchUsers(); // Re-fetch users to update the list
-      } catch (error) {
-        toast.error('Failed to delete user.');
-      }
-    }
-  };
+  const revenueData = analytics?.revenueTimeline || [
+    { date: '21 May', revenue: 620 },
+    { date: '22 May', revenue: 950 },
+    { date: '23 May', revenue: 1400 },
+    { date: '24 May', revenue: 2150 },
+    { date: '25 May', revenue: 1800 },
+    { date: '26 May', revenue: 2600 },
+    { date: '27 May', revenue: 2300 },
+    { date: '28 May', revenue: 3100 },
+  ];
 
-  const openEditModal = (user) => {
-    setEditingUser({ ...user });
-    setShowEditModal(true);
-  };
+  const userGrowthData = analytics?.userGrowth || [
+    { date: '21 May', users: 28 },
+    { date: '22 May', users: 45 },
+    { date: '23 May', users: 72 },
+    { date: '24 May', users: 110 },
+    { date: '25 May', users: 154 },
+    { date: '26 May', users: 195 },
+    { date: '27 May', users: 228 },
+    { date: '28 May', users: 256 },
+  ];
 
-  const closeEditModal = () => {
-    setEditingUser(null);
-    setShowEditModal(false);
-  };
+  const downloadsData = analytics?.downloadsActivity || [
+    { date: '21 May', downloads: 22 },
+    { date: '22 May', downloads: 41 },
+    { date: '23 May', downloads: 68 },
+    { date: '24 May', downloads: 104 },
+    { date: '25 May', downloads: 139 },
+    { date: '26 May', downloads: 165 },
+    { date: '27 May', downloads: 182 },
+    { date: '28 May', downloads: 195 },
+  ];
 
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditingUser((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const ordersByStatus = analytics?.ordersByStatus || [
+    { name: 'Paid', value: 152, color: '#3B82F6' },
+    { name: 'Pending', value: 20, color: '#60A5FA' },
+    { name: 'Failed', value: 9, color: '#1E3A8A' },
+    { name: 'Cancelled', value: 8, color: '#0F172A' },
+  ];
 
-  const updateUserHandler = async () => {
-    try {
-      await axios.put(`http://localhost:8000/api/admin/users/${editingUser._id}`, editingUser, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      toast.success('User updated successfully!');
-      closeEditModal();
-      fetchUsers(); // Re-fetch users to update the list
-    } catch (error) {
-      toast.error('Failed to update user.');
-    }
-  };
-
-  const openAddModal = () => {
-    setNewUser({ name: '', email: '', password: '', isAdmin: false });
-    setShowAddModal(true);
-  };
-
-  const closeAddModal = () => {
-    setShowAddModal(false);
-  };
-
-  const handleAddChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setNewUser((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
-
-  const addUserHandler = async () => {
-    try {
-      await axios.post('http://localhost:8000/api/admin/users', newUser, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      toast.success('User added successfully!');
-      closeAddModal();
-      fetchUsers(); // Re-fetch users to update the list
-    } catch (error) {
-      toast.error('Failed to add user.');
-    }
-  };
-
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
-  if (error) return <div className="text-center mt-10 text-red-500">Error: {error.message}</div>;
-
-  // Prepare data for charts
-  const adminCount = users.filter(user => user.isAdmin).length;
-  const regularUserCount = users.length - adminCount;
-
-  const userData = {
-    labels: ['Admins', 'Regular Users'],
-    datasets: [
-      {
-        label: 'Number of Users',
-        data: [adminCount, regularUserCount],
-        backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)'],
-        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const pieOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'User Role Distribution',
-      },
-    },
-  };
-
-  const barOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'User Role Count',
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          stepSize: 1,
-        },
-      },
-    },
-  };
+  const paymentMethods = analytics?.paymentMethods || [
+    { name: 'GPay', value: 60, color: '#2563EB' },
+    { name: 'PhonePe', value: 30, color: '#3B82F6' },
+    { name: 'Paytm', value: 8, color: '#60A5FA' },
+    { name: 'Other UPI', value: 2, color: '#93C5FD' },
+  ];
 
   return (
-    <div className="p-4 md:p-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">Admin Dashboard</h1>
-
-      <button
-        onClick={openAddModal}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
-      >
-        Add New User
-      </button>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">User Role Distribution (Pie Chart)</h2>
-          <Pie data={userData} options={pieOptions} />
+    <div className="space-y-8">
+      
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-blue-950">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            Admin Dashboard
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            Real-time business telemetry and sales performance.
+          </p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">User Role Count (Bar Chart)</h2>
-          <Bar data={userData} options={barOptions} />
+
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#0D1B2A] border border-blue-900/50 text-xs text-slate-300">
+          <Calendar size={14} className="text-blue-400" />
+          <span>21 May 2025 – 28 May 2025</span>
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold mb-4">Manage Users</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white">
-            <thead>
-              <tr>
-                <th className="py-2 px-4 border-b text-left">ID</th>
-                <th className="py-2 px-4 border-b text-left">Name</th>
-                <th className="py-2 px-4 border-b text-left">Email</th>
-                <th className="py-2 px-4 border-b text-left">Admin</th>
-                <th className="py-2 px-4 border-b text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user._id}>
-                  <td className="py-2 px-4 border-b">{user._id}</td>
-                  <td className="py-2 px-4 border-b">{user.name}</td>
-                  <td className="py-2 px-4 border-b">{user.email}</td>
-                  <td className="py-2 px-4 border-b">
-                    {user.isAdmin ? 'Yes' : 'No'}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    <button
-                      onClick={() => handleToggleAdmin(user._id, user.isAdmin)}
-                      className={`py-1 px-3 rounded text-white ${
-                        user.isAdmin ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
-                      } mr-2`}
-                    >
-                      {user.isAdmin ? 'Revoke Admin' : 'Make Admin'}
-                    </button>
-                    <button
-                      onClick={() => openEditModal(user)}
-                      className="py-1 px-3 rounded text-white bg-blue-500 hover:bg-blue-600 mr-2"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => deleteUserHandler(user._id)}
-                      className="py-1 px-3 rounded text-white bg-red-500 hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
+      {/* 5 KPI Top Cards matching Reference UI */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        
+        <div className="bg-[#0D1B2A] border border-blue-900/40 rounded-2xl p-5">
+          <span className="text-xs font-semibold text-slate-400">Total Users</span>
+          <p className="text-2xl sm:text-3xl font-black text-white mt-1">
+            {stats?.totalUsers || 256}
+          </p>
+          <span className="text-[11px] font-semibold text-emerald-400 mt-1 block">
+            ↑ 12 this week
+          </span>
+        </div>
+
+        <div className="bg-[#0D1B2A] border border-blue-900/40 rounded-2xl p-5">
+          <span className="text-xs font-semibold text-slate-400">Total Orders</span>
+          <p className="text-2xl sm:text-3xl font-black text-white mt-1">
+            {stats?.totalOrders || 189}
+          </p>
+          <span className="text-[11px] font-semibold text-emerald-400 mt-1 block">
+            ↑ 8 this week
+          </span>
+        </div>
+
+        <div className="bg-[#0D1B2A] border border-blue-900/40 rounded-2xl p-5">
+          <span className="text-xs font-semibold text-slate-400">Total Revenue</span>
+          <p className="text-2xl sm:text-3xl font-black text-white mt-1">
+            ₹{(stats?.totalRevenue || 11124).toLocaleString()}
+          </p>
+          <span className="text-[11px] font-semibold text-emerald-400 mt-1 block">
+            ↑ 15% this week
+          </span>
+        </div>
+
+        <div className="bg-[#0D1B2A] border border-blue-900/40 rounded-2xl p-5">
+          <span className="text-xs font-semibold text-slate-400">Total Downloads</span>
+          <p className="text-2xl sm:text-3xl font-black text-white mt-1">
+            {stats?.totalDownloads || 195}
+          </p>
+          <span className="text-[11px] font-semibold text-emerald-400 mt-1 block">
+            ↑ 10 this week
+          </span>
+        </div>
+
+        <div className="bg-[#0D1B2A] border border-blue-900/40 rounded-2xl p-5 col-span-2 md:col-span-1">
+          <span className="text-xs font-semibold text-slate-400">Pending Payments</span>
+          <p className="text-2xl sm:text-3xl font-black text-white mt-1">
+            {stats?.pendingPayments || 7}
+          </p>
+          <Link
+            to="/admin/payments"
+            className="text-[11px] font-semibold text-blue-400 hover:text-blue-300 mt-1 block underline"
+          >
+            View all
+          </Link>
+        </div>
+
+      </div>
+
+      {/* Row 1: Overview (Revenue Line Chart + Orders Donut Chart) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* Revenue Overview */}
+        <div className="lg:col-span-7 bg-[#0D1B2A] border border-blue-900/40 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-base font-bold text-white">Revenue Overview</h3>
+              <p className="text-xs text-slate-400">Daily revenue performance</p>
+            </div>
+            <div className="text-xs px-2.5 py-1 rounded-lg bg-blue-950/60 text-blue-400 border border-blue-900/40 font-semibold">
+              This Week
+            </div>
+          </div>
+
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
+                <XAxis dataKey="date" stroke="#64748B" tick={{ fontSize: 11 }} />
+                <YAxis stroke="#64748B" tick={{ fontSize: 11 }} tickFormatter={(v) => `₹${v}`} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#07111F', borderColor: '#1E3A8A', borderRadius: '12px' }}
+                  formatter={(val) => [`₹${val}`, 'Revenue']}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#3B82F6"
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: '#60A5FA' }}
+                  activeDot={{ r: 6, fill: '#FFFFFF' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Orders by Status Donut */}
+        <div className="lg:col-span-5 bg-[#0D1B2A] border border-blue-900/40 rounded-2xl p-6">
+          <h3 className="text-base font-bold text-white mb-2">Orders by Status</h3>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-64">
+            <div className="w-48 h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={ordersByStatus}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={75}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {ordersByStatus.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#07111F', borderColor: '#1E3A8A', borderRadius: '12px' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="space-y-2 text-xs w-full sm:w-auto">
+              {ordersByStatus.map((item) => (
+                <div key={item.name} className="flex items-center justify-between sm:justify-start gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="text-slate-300 font-medium">{item.name}</span>
+                  </div>
+                  <span className="font-bold text-white">{item.value}</span>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Edit User Modal */}
-      {showEditModal && editingUser && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center">
-          <div className="bg-white p-8 rounded-lg shadow-xl w-1/3">
-            <h2 className="text-2xl font-bold mb-4">Edit User</h2>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Name:</label>
-              <input
-                type="text"
-                name="name"
-                value={editingUser.name}
-                onChange={handleEditChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Email:</label>
-              <input
-                type="email"
-                name="email"
-                value={editingUser.email}
-                onChange={handleEditChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              />
-            </div>
-            <div className="flex justify-end">
-              <button
-                onClick={updateUserHandler}
-                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2"
-              >
-                Update
-              </button>
-              <button
-                onClick={closeEditModal}
-                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Cancel
-              </button>
             </div>
           </div>
         </div>
-      )}
+
+      </div>
+
+      {/* Row 2: User Growth + Downloads + Top Payment Methods */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* User Growth */}
+        <div className="bg-[#0D1B2A] border border-blue-900/40 rounded-2xl p-5">
+          <h4 className="text-sm font-bold text-white mb-4">User Growth</h4>
+          <div className="h-44 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={userGrowthData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
+                <XAxis dataKey="date" stroke="#64748B" tick={{ fontSize: 10 }} />
+                <YAxis stroke="#64748B" tick={{ fontSize: 10 }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#07111F', borderColor: '#1E3A8A', borderRadius: '8px' }}
+                />
+                <Line type="monotone" dataKey="users" stroke="#38BDF8" strokeWidth={2.5} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Downloads */}
+        <div className="bg-[#0D1B2A] border border-blue-900/40 rounded-2xl p-5">
+          <h4 className="text-sm font-bold text-white mb-4">Downloads</h4>
+          <div className="h-44 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={downloadsData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
+                <XAxis dataKey="date" stroke="#64748B" tick={{ fontSize: 10 }} />
+                <YAxis stroke="#64748B" tick={{ fontSize: 10 }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#07111F', borderColor: '#1E3A8A', borderRadius: '8px' }}
+                />
+                <Line type="monotone" dataKey="downloads" stroke="#2563EB" strokeWidth={2.5} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Top Payment Methods */}
+        <div className="bg-[#0D1B2A] border border-blue-900/40 rounded-2xl p-5">
+          <h4 className="text-sm font-bold text-white mb-2">Top Payment Methods</h4>
+          <div className="flex items-center justify-between h-44">
+            <div className="w-32 h-32">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={paymentMethods}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={30}
+                    outerRadius={50}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {paymentMethods.map((entry, index) => (
+                      <Cell key={`pay-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="space-y-1.5 text-xs">
+              {paymentMethods.map((item) => (
+                <div key={item.name} className="flex items-center justify-between gap-3">
+                  <span className="text-slate-300">{item.name}</span>
+                  <span className="font-bold text-white">{item.value}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   );
 };

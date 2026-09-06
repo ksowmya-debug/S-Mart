@@ -2,6 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
-a.active hr{
-    display: block;
+@layer base {
+  html, body, #root {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  pre {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Custom glowing effects & animations */
+.glow-blue {
+  filter: drop-shadow(0 0 20px rgba(37, 99, 235, 0.45));
+}
+
+.glow-text {
+  text-shadow: 0 0 25px rgba(59, 130, 246, 0.6);
+}
+
+.glass-card {
+  background: rgba(13, 27, 42, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(30, 58, 138, 0.35);
+}
+
+.glass-card-hover:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 25px rgba(37, 99, 235, 0.2);
+  transform: translateY(-2px);
+  transition: all 0.25s ease;
+}
+
+/* Custom thin scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #07111F;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E3A8A;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2563EB;
 }

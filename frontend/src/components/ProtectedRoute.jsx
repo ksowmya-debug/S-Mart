@@ -1,19 +1,30 @@
-import React, { useContext } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import { StoreContext } from '../context/StoreContext';
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute = ({ children, adminOnly }) => {
-  const { token, user } = useContext(StoreContext);
+const ProtectedRoute = ({ children, adminOnly = false }) => {
+  const { user, loading, isAuthenticated, isAdmin } = useAuth();
+  const location = useLocation();
 
-  if (!token) {
-    return <Navigate to="/login" />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8FBFF] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-cyan-200 border-t-cyan-600 rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
-  if (adminOnly && (!user || !user.isAdmin)) {
-    return <Navigate to="/" />;
+  if (!isAuthenticated) {
+    const isTryingAdmin = location.pathname.startsWith('/admin');
+    const targetRedirect = isTryingAdmin ? '/login?redirect=admin' : '/register?redirect=pay';
+    return <Navigate to={targetRedirect} state={{ from: location }} replace />;
   }
 
-  return children ? children : <Outlet />;
+  if (adminOnly && !isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
 };
 
 export default ProtectedRoute;

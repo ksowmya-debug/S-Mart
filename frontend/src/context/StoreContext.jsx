@@ -77,30 +77,13 @@ const StoreContextProvider = (props) => {
         setUser(null); // Clear user data on logout
     }
 
-    useEffect(()=>{
-        async function loadData() {
-            if (localStorage.getItem("token")) {
-                setToken(localStorage.getItem("token"));
-                // Fetch user data if token exists
-                try {
-                    const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/profile`, {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        },
-                    });
-                    console.log('User data from profile API:', data);
-                    console.log('StoreContext - setting user:', data);
-                    setUser(data); // Assuming /api/users/profile returns user data
-                } catch (error) {
-                    console.error('Error fetching user data:', error);
-                    toast.error('Failed to fetch user data.');
-                    localStorage.removeItem("token"); // Clear invalid token
-                    setToken("");
-                }
-            }
+    useEffect(() => {
+        // Safe initialization without destructive token removal
+        const storedToken = localStorage.getItem("token");
+        if (storedToken) {
+            setToken(storedToken);
         }
-        loadData();
-    },[])
+    }, []);
 
     const contextValue = {
         products,

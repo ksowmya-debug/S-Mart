@@ -1,64 +1,148 @@
 import React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import Collections from './pages/Collections';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Product from './pages/Product';
-import Cart from './pages/Cart';
-import Login from './pages/Login';
-import PlaceOrder from './pages/PlaceOrder';
-import Orders from './pages/Orders';
-import Navbar from './components/Navbar';
-import Profile from './pages/Profile';
-import { ToastContainer, Bounce } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 
-import DummyUpiCheckout from './pages/DummyUpiCheckout';
-import Register from './pages/Register';
+// Public Pages
+import HomePage from './pages/HomePage';
+import NotesPage from './pages/NotesPage';
+import PreviewPage from './pages/PreviewPage';
+import TestimonialsPage from './pages/TestimonialsPage';
+import FaqPage from './pages/FaqPage';
+import ContactPage from './pages/ContactPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import PaymentPage from './pages/PaymentPage';
+import PoliciesPage from './pages/PoliciesPage';
+
+// User Dashboard
+import UserDashboard from './pages/UserDashboard';
+
+// Admin Panel
 import AdminLayout from './pages/Admin/AdminLayout';
 import AdminDashboard from './pages/Admin/AdminDashboard';
+import AdminUsers from './pages/Admin/AdminUsers';
+import AdminOrders from './pages/Admin/AdminOrders';
+import AdminPayments from './pages/Admin/AdminPayments';
+import AdminDownloads from './pages/Admin/AdminDownloads';
+import AdminProducts from './pages/Admin/AdminProducts';
 
-
-
-import Dashboard from './pages/Admin/Dashboard'; // Import the Dashboard component
-
-const App = () => {
+const AppContent = () => {
   const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isDashboardRoute = location.pathname.startsWith('/dashboard');
 
   return (
-    <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]'>
-      {location.pathname !== '/login' && <Navbar />}
-      <ToastContainer
-        transition={Bounce}
-        autoClose={2000}
-      />
-      <Routes>
-        <Route path='/' element={<HomePage />} />
-        <Route path='/Collections' element={<Collections />} />
-        <Route path='/about' element={<About />} />
-        <Route path='/contact' element={<Contact />} />
-        <Route path='/product/:productId' element={<Product />} />
-        <Route path='/cart' element={<ProtectedRoute><Cart /></ProtectedRoute>} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/order' element={<ProtectedRoute><PlaceOrder /></ProtectedRoute>} />
-        <Route path='/orders' element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-        <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        
-        <Route path='/dummy-upi-checkout' element={<DummyUpiCheckout />} />
-        <Route path='/register' element={<Register />} />
+    <div className="min-h-screen bg-[#F8FBFF] text-[#475569] flex flex-col selection:bg-cyan-500 selection:text-white font-sans">
+      {/* Navbar only shown outside Admin & User Dashboard dedicated views */}
+      {!isAdminRoute && !isDashboardRoute && <Navbar />}
 
-        {/* Admin Routes */}
-        <Route path='/admin' element={<ProtectedRoute adminOnly><AdminLayout /></ProtectedRoute>}>
-          <Route index element={<AdminDashboard />} />
-          <Route path='dashboard' element={<Dashboard />} /> {/* Render Dashboard component here */}
-          
-          
-          {/* Add other admin routes here if needed, e.g., for UserList */}
-        </Route>
-      </Routes>
+      <div className="flex-grow">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/notes" element={<NotesPage />} />
+          <Route path="/preview" element={<PreviewPage />} />
+          <Route path="/testimonials" element={<TestimonialsPage />} />
+          <Route path="/faq" element={<FaqPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/terms" element={<PoliciesPage />} />
+          <Route path="/privacy" element={<PoliciesPage />} />
+          <Route path="/refund" element={<PoliciesPage />} />
+          <Route path="/shipping" element={<PoliciesPage />} />
+          <Route path="/policies" element={<PoliciesPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* UPI Payment Routes (Protected) */}
+          <Route
+            path="/pay"
+            element={
+              <ProtectedRoute>
+                <PaymentPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payment"
+            element={
+              <ProtectedRoute>
+                <PaymentPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute>
+                <PaymentPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pay/:orderId"
+            element={
+              <ProtectedRoute>
+                <PaymentPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payment/:orderId"
+            element={
+              <ProtectedRoute>
+                <PaymentPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* User Dashboard (Protected) */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <UserDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Panel (Protected + Admin Role Only) */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="payments" element={<AdminPayments />} />
+            <Route path="downloads" element={<AdminDownloads />} />
+            <Route path="analytics" element={<AdminDashboard />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="settings" element={<AdminProducts />} />
+          </Route>
+
+          {/* Fallback Route */}
+          <Route path="*" element={<HomePage />} />
+        </Routes>
+      </div>
+
+      {/* Footer shown on public pages */}
+      {!isAdminRoute && !isDashboardRoute && <Footer />}
     </div>
+  );
+};
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 

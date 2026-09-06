@@ -1,52 +1,104 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
-import { assets } from '../../assets/admin_assets/assets';
-import { useState } from 'react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import {
+  LayoutDashboard,
+  Users,
+  ShoppingBag,
+  CreditCard,
+  Download,
+  BarChart3,
+  Package,
+  Settings,
+  LogOut,
+  ExternalLink,
+} from 'lucide-react';
 
 const AdminLayout = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const menuItems = [
+    { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, exact: true },
+    { name: 'Users', path: '/admin/users', icon: Users },
+    { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
+    { name: 'Payments', path: '/admin/payments', icon: CreditCard },
+    { name: 'Downloads', path: '/admin/downloads', icon: Download },
+    { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
+    { name: 'Products', path: '/admin/products', icon: Package },
+    { name: 'Settings', path: '/admin/settings', icon: Settings },
+  ];
+
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Mobile menu button */}
-      <button
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="sm:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-      >
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-      <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-gradient-to-br from-purple-700 to-indigo-800 text-white shadow-lg transform ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } sm:relative sm:translate-x-0 transition-transform duration-300 ease-in-out`}
-      >
-        <div className="p-6 text-3xl font-extrabold text-center border-b border-purple-600 flex items-center justify-center">
-          <img src={assets.logo} alt="Admin Logo" className="h-10 mr-2" />
-          Admin
+    <div className="min-h-screen bg-[#07111F] text-slate-100 flex flex-col md:flex-row pt-16">
+      
+      {/* Admin Sidebar */}
+      <aside className="w-full md:w-64 bg-[#0A1424] border-r border-blue-950/80 p-5 shrink-0 flex flex-col justify-between">
+        
+        <div className="space-y-6">
+          {/* Admin Brand Logo */}
+          <div className="flex items-center justify-between px-2">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-glow-sm">
+                <span className="text-white text-base font-black">◈</span>
+              </div>
+              <span className="text-xl font-black text-white tracking-tight">CodeID</span>
+            </div>
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800/40">
+              Admin
+            </span>
+          </div>
+
+          {/* Navigation Links */}
+          <nav className="space-y-1">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.name}
+                  to={item.path}
+                  end={item.exact}
+                  className={({ isActive }) =>
+                    `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
+                      isActive
+                        ? 'bg-blue-600 text-white shadow-glow-sm'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-blue-950/40'
+                    }`
+                  }
+                >
+                  <Icon size={18} />
+                  <span>{item.name}</span>
+                </NavLink>
+              );
+            })}
+          </nav>
         </div>
-        <nav className="mt-8">
-          <ul>
-            <li>
-              <NavLink
-                to="/admin"
-                className={({ isActive }) =>
-                  `flex items-center py-3 px-6 text-lg font-medium transition-colors duration-200 ${isActive ? 'bg-purple-600 text-white rounded-r-full' : 'hover:bg-purple-700 hover:text-gray-100'}`
-                }
-              >
-                <img src={assets.order_icon} alt="Dashboard Icon" className="h-6 w-6 mr-3" />
-                Dashboard
-              </NavLink>
-            </li>
-            
-            
-            
-          </ul>
-        </nav>
+
+        {/* Sidebar Footer */}
+        <div className="pt-6 border-t border-blue-950 space-y-2">
+          <NavLink
+            to="/"
+            className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-blue-400 hover:bg-blue-950/30 transition"
+          >
+            <ExternalLink size={16} />
+            <span>View Public Site</span>
+          </NavLink>
+          <button
+            onClick={logout}
+            className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-red-400 hover:bg-red-950/20 transition"
+          >
+            <LogOut size={16} />
+            <span>Logout</span>
+          </button>
+        </div>
+
       </aside>
-      <main className="flex-grow p-8 bg-gray-100 sm:ml-64">
+
+      {/* Main Content Area */}
+      <main className="flex-1 p-6 sm:p-10 max-w-7xl overflow-x-hidden">
         <Outlet />
       </main>
+
     </div>
   );
 };
