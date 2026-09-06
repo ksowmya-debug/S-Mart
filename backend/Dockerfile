@@ -21,4 +21,4 @@ ENV PORT=8000 \
     NODE_ENV=production
 
 # Start server
-CMD ["node", "server.js"]
+CMD ["node", "src/server.js"]
