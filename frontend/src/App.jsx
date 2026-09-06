@@ -28,6 +28,7 @@ import AdminOrders from './pages/Admin/AdminOrders';
 import AdminPayments from './pages/Admin/AdminPayments';
 import AdminDownloads from './pages/Admin/AdminDownloads';
 import AdminProducts from './pages/Admin/AdminProducts';
+import AdminReviews from './pages/Admin/AdminReviews';
 
 const AppContent = () => {
   const location = useLocation();
@@ -122,6 +123,7 @@ const AppContent = () => {
             <Route path="orders" element={<AdminOrders />} />
             <Route path="payments" element={<AdminPayments />} />
             <Route path="downloads" element={<AdminDownloads />} />
+            <Route path="reviews" element={<AdminReviews />} />
             <Route path="analytics" element={<AdminDashboard />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="settings" element={<AdminProducts />} />

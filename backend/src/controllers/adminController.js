@@ -4,6 +4,7 @@ import Payment from '../models/paymentModel.js';
 import Download from '../models/downloadModel.js';
 import Product from '../models/productModel.js';
 import AuditLog from '../models/auditLogModel.js';
+import Review from '../models/reviewModel.js';
 
 // @desc    Admin KPI Overview
 // @route   GET /api/admin/dashboard
@@ -358,6 +359,53 @@ export const toggleUserStatus = async (req, res) => {
     });
 
     res.json({ message: `User status changed to ${user.status}`, user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Admin get all reviews
+// @route   GET /api/admin/reviews
+// @access  Private/Admin
+export const getAdminReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find().sort({ createdAt: -1 });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Admin delete a review
+// @route   DELETE /api/admin/reviews/:id
+// @access  Private/Admin
+export const deleteReview = async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+    if (!review) return res.status(404).json({ message: 'Review not found' });
+    await review.deleteOne();
+    res.json({ message: 'Review deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Admin update a review
+// @route   PUT /api/admin/reviews/:id
+// @access  Private/Admin
+export const updateReview = async (req, res) => {
+  try {
+    const { name, rating, comment, isApproved } = req.body;
+    const review = await Review.findById(req.params.id);
+    if (!review) return res.status(404).json({ message: 'Review not found' });
+    
+    if (name) review.name = name;
+    if (rating) review.rating = rating;
+    if (comment) review.comment = comment;
+    if (isApproved !== undefined) review.isApproved = isApproved;
+    
+    await review.save();
+    res.json(review);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

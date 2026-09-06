@@ -8,6 +8,7 @@ import orderRoutes from './routes/orderRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import downloadRoutes from './routes/downloadRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 // Environment variables
@@ -51,6 +52,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/downloads', downloadRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Error Handling Middleware
 app.use(notFound);

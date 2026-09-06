@@ -9,6 +9,9 @@ import {
   verifyOrderManually,
   getDownloads,
   toggleUserStatus,
+  getAdminReviews,
+  deleteReview,
+  updateReview,
 } from '../controllers/adminController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { adminOnly } from '../middleware/adminMiddleware.js';
@@ -27,5 +30,9 @@ router.put('/orders/:id/verify', verifyOrderManually);
 router.get('/payments', getPayments);
 router.put('/payments/:id/verify', verifyPaymentManually);
 router.get('/downloads', getDownloads);
+
+router.get('/reviews', getAdminReviews);
+router.delete('/reviews/:id', deleteReview);
+router.put('/reviews/:id', updateReview);
 
 export default router;

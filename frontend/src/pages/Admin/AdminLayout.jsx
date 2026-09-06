@@ -12,6 +12,7 @@ import {
   Settings,
   LogOut,
   ExternalLink,
+  MessageSquare,
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -25,6 +26,7 @@ const AdminLayout = () => {
     { name: 'Payments', path: '/admin/payments', icon: CreditCard },
     { name: 'Downloads', path: '/admin/downloads', icon: Download },
     { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
+    { name: 'Reviews', path: '/admin/reviews', icon: MessageSquare },
     { name: 'Products', path: '/admin/products', icon: Package },
     { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
